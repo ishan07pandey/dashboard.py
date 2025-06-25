@@ -76,19 +76,19 @@ with st.form("add_form"):
     if add_submit and item and company:
        inventory = load_inventory()
        # Check if item already exists (same item, company, model)
-    updated = False
-    for row in inventory:
-        if (
-            row['item'].lower() == item.lower() and
-            row['company'].lower() == company.lower() and
-            row['model'].lower() == model.lower()
+       updated = False
+       for row in inventory:
+           if (
+              row['item'].lower() == item.lower() and
+              row['company'].lower() == company.lower() and
+              row['model'].lower() == model.lower()
         ):
             # Update existing item: increase stock and update price/reorder level if needed
-            row['stock'] = str(int(row['stock']) + int(stock))
-            row['price'] = str(price)  # Optional: only update if price is different
-            row['reorder_level'] = str(reorder_level)
-            updated = True
-            break
+              row['stock'] = str(int(row['stock']) + int(stock))
+              row['price'] = str(price)  # Optional: only update if price is different
+              row['reorder_level'] = str(reorder_level)
+              updated = True
+              break
 
     if updated:
         st.success(f"Updated stock for existing item '{item}'.")
