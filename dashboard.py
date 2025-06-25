@@ -74,7 +74,7 @@ with st.form("add_form"):
     add_submit = st.form_submit_button("Add Item")
 
     if add_submit and item and company:
-    inventory = load_inventory()
+       inventory = load_inventory()
 
     # Check if item already exists (same item, company, model)
     exists = any(
