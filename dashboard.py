@@ -3,11 +3,13 @@ import pandas as pd
 import csv
 import os
 import datetime
-st.set_option("client.showErrorDetails", True)
 
+st.set_option("client.showErrorDetails", True)
 
 INVENTORY_FILE = "inventory.csv"
 SALES_FILE = "sales.csv"
+
+# --- File Handling Functions ---
 
 def load_inventory():
     if not os.path.exists(INVENTORY_FILE):
@@ -33,26 +35,30 @@ def record_sale_to_file(item, company, model, qty_sold, price):
             writer.writerow(["item", "company", "model", "quantity", "price", "total", "sale_time"])
         writer.writerow([item, company, model, qty_sold, price, total, sale_time])
 
-# Load and prepare data
+
+# --- Load and Prepare Data ---
+
 df = pd.DataFrame(load_inventory())
 if not df.empty:
     for col in ["stock", "price", "reorder_level"]:
         df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
-# --- Check for low-stock alerts ---
-low_stock_df = df[df["stock"] < df["reorder_level"]]
 
+# --- Low Stock Alert ---
+
+low_stock_df = df[df["stock"] < df["reorder_level"]]
 if not low_stock_df.empty:
     st.warning("⚠️ The following items are below their reorder level:")
     st.dataframe(low_stock_df[["item", "company", "model", "stock", "reorder_level"]])
 
-
 st.title("🛒 Stationery Inventory Management")
 
 # --- Display Inventory ---
+
 st.subheader("📦 Current Inventory")
 st.dataframe(df)
 
 # --- Add New Item ---
+
 st.subheader("➕ Add New Item")
 with st.form("add_form"):
     col1, col2, col3 = st.columns(3)
@@ -74,43 +80,41 @@ with st.form("add_form"):
     add_submit = st.form_submit_button("Add Item")
 
     if add_submit and item and company:
-       inventory = load_inventory()
-       # Check if item already exists (same item, company, model)
-       updated = False
-       for row in inventory:
-           if (
-              row['item'].lower() == item.lower() and
-              row['company'].lower() == company.lower() and
-              row['model'].lower() == model.lower()
-        ):
-            # Update existing item: increase stock and update price/reorder level if needed
-              row['stock'] = str(int(row['stock']) + int(stock))
-              row['price'] = str(price)  # Optional: only update if price is different
-              row['reorder_level'] = str(reorder_level)
-              updated = True
-              break
+        inventory = load_inventory()
+        updated = False
 
-    if updated:
-        st.success(f"Updated stock for existing item '{item}'.")
-    else:
-        inventory.append({
-            "item": item,
-            "company": company,
-            "model": model,
-            "stock": stock,
-            "price": price,
-            "reorder_level": reorder_level
-        })
-        st.success(f"Item '{item}' added successfully!")
+        for row in inventory:
+            if (
+                row['item'].lower() == item.lower() and
+                row['company'].lower() == company.lower() and
+                row['model'].lower() == model.lower()
+            ):
+                row['stock'] = str(int(row['stock']) + int(stock))
+                row['price'] = str(price)
+                row['reorder_level'] = str(reorder_level)
+                updated = True
+                break
 
-    save_inventory(inventory)
-    st.experimental_rerun()
+        if updated:
+            st.success(f"Updated stock for existing item '{item}'.")
+        else:
+            inventory.append({
+                "item": item,
+                "company": company,
+                "model": model,
+                "stock": stock,
+                "price": price,
+                "reorder_level": reorder_level
+            })
+            st.success(f"Item '{item}' added successfully!")
 
+        save_inventory(inventory)
+        st.experimental_rerun()
 
 
 # --- Record Sale ---
-st.subheader("🧾 Record Sale")
 
+st.subheader("🧾 Record Sale")
 if not df.empty:
     sale_item = st.selectbox("Item", df["item"].unique(), key="sale_item")
     filtered_companies = df[df["item"] == sale_item]["company"].unique()
@@ -132,9 +136,10 @@ if not df.empty:
         st.success(f"Recorded sale of {qty_sold} {sale_item}(s)")
         st.experimental_rerun()
 
-# --- Update Price ---
-st.subheader("💰 Update Item Price")
 
+# --- Update Price ---
+
+st.subheader("💰 Update Item Price")
 if not df.empty:
     price_item = st.selectbox("Item", df["item"].unique(), key="p_item")
     filtered_companies = df[df["item"] == price_item]["company"].unique()
@@ -159,9 +164,10 @@ if not df.empty:
         else:
             st.error("Item not found.")
 
-# --- Delete Item ---
-st.subheader("🗑️ Delete Item")
 
+# --- Delete Item ---
+
+st.subheader("🗑️ Delete Item")
 if not df.empty:
     del_item = st.selectbox("Item", df["item"].unique(), key="d_item")
     filtered_companies = df[df["item"] == del_item]["company"].unique()
@@ -177,7 +183,9 @@ if not df.empty:
         st.success(f"Deleted {del_item} from inventory.")
         st.experimental_rerun()
 
+
 # --- Show Today's Sales ---
+
 st.subheader("📅 Today's Sales")
 if os.path.exists(SALES_FILE) and os.path.getsize(SALES_FILE) > 0:
     try:
