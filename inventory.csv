@@ -1,5 +1,5 @@
 item,company,model,stock,price,reorder_level
-Pen,Cello,Papersoft,300,20,100
+Pen,Cello,Papersoft,200,20,100
 Pencil,Doms,Triangle,500,31.0,500
 Diary,Luxor,Spiral,200,50.0,100
 Tape,Wiring Tape,safa,500,15.0,200
