@@ -38,6 +38,13 @@ df = pd.DataFrame(load_inventory())
 if not df.empty:
     for col in ["stock", "price", "reorder_level"]:
         df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
+# --- Check for low-stock alerts ---
+low_stock_df = df[df["stock"] < df["reorder_level"]]
+
+if not low_stock_df.empty:
+    st.warning("⚠️ The following items are below their reorder level:")
+    st.dataframe(low_stock_df[["item", "company", "model", "stock", "reorder_level"]])
+
 
 st.title("🛒 Stationery Inventory Management")
 
