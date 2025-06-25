@@ -74,7 +74,19 @@ with st.form("add_form"):
     add_submit = st.form_submit_button("Add Item")
 
     if add_submit and item and company:
-        inventory = load_inventory()
+    inventory = load_inventory()
+
+    # Check if item already exists (same item, company, model)
+    exists = any(
+        row['item'].lower() == item.lower() and
+        row['company'].lower() == company.lower() and
+        row['model'].lower() == model.lower()
+        for row in inventory
+    )
+
+    if exists:
+        st.warning(f"Item '{item}' with the same company and model already exists.")
+    else:
         inventory.append({
             "item": item,
             "company": company,
@@ -86,6 +98,7 @@ with st.form("add_form"):
         save_inventory(inventory)
         st.success(f"Item '{item}' added successfully!")
         st.experimental_rerun()
+
 
 # --- Record Sale ---
 st.subheader("🧾 Record Sale")
