@@ -109,7 +109,7 @@ with st.form("add_form"):
             st.success(f"Item '{item}' added successfully!")
 
         save_inventory(inventory)
-        st.experimental_rerun()
+    st.experimental_rerun()
 
 
 # --- Record Sale ---
