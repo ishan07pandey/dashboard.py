@@ -3,6 +3,8 @@ import pandas as pd
 import csv
 import os
 import datetime
+st.set_option("client.showErrorDetails", True)
+
 
 INVENTORY_FILE = "inventory.csv"
 SALES_FILE = "sales.csv"
